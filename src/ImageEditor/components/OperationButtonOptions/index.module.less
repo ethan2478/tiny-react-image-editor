@@ -1,0 +1,47 @@
+@import (reference) '../../variable.less';
+
+.operationButtonOptions {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: @font-family;
+
+  .content-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: @button-size + 3 * 2 + 2;
+    background-color: #fff;
+    padding: 3px;
+    border-radius: 2px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+  }
+
+  .option-arrow {
+    position: absolute;
+    border: 6px solid transparent;
+  }
+
+  &[data-placement='top'] {
+    transform: translate(-50%, -11px);
+
+    .option-arrow {
+      transform: translate(-50%, -1px);
+      border-top-color: #fff;
+      top: 100%;
+      left: 50%;
+    }
+  }
+
+  &[data-placement='bottom'] {
+    transform: translate(-50%, 11px);
+
+    .option-arrow {
+      transform: translate(-50%, 1px);
+      border-bottom-color: #fff;
+      bottom: 100%;
+      left: 50%;
+    }
+  }
+}

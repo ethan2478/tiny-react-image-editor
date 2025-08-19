@@ -1,0 +1,66 @@
+{
+  "name": "tiny-react-image-editor",
+  "version": "0.0.1",
+  "description": "An image editor tool by react",
+  "main": "./lib/index.cjs.js",
+  "module": "./lib/index.es.js",
+  "types": "./lib/types/exports.ts",
+  "files": [
+    "lib/**"
+  ],
+  "scripts": {
+    "start": "vite",
+    "dev": "tsc --watch",
+    "build": "npm run lint && npm run clean && npm run build:web && npm run build:lib",
+    "build:web": "vite build --mode web",
+    "build:lib": "vite build --mode lib && tsc --project tsconfig.build.json",
+    "lint": "eslint src --ext .js,.ts,.jsx,.tsx --fix",
+    "preview": "vite preview",
+    "clean": "rimraf dist lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ethan2478/tiny-react-image-editor"
+  },
+  "keywords": [
+    "react",
+    "cropper",
+    "react image editor"
+  ],
+  "author": "Ethan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ethan2478/tiny-react-image-editor/issues"
+  },
+  "homepage": "https://github.com/ethan2478/tiny-react-image-editor",
+  "publishConfig": {
+    "registry": "https://www.npmjs.com/"
+  },
+  "peerDependencies": {
+    "react": ">=16.8",
+    "react-dom": ">=16.8"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.31",
+    "@types/react-dom": "^18.0.11",
+    "@typescript-eslint/eslint-plugin": "^5.57.0",
+    "@typescript-eslint/parser": "^5.57.0",
+    "@vitejs/plugin-react": "^3.1.0",
+    "eslint": "^8.37.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-config-standard-jsx": "^11.0.0",
+    "eslint-config-standard-react": "^13.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-n": "^15.6.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "less": "^4.1.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rimraf": "^4.4.1",
+    "typescript": "^5.0.2",
+    "vite": "^4.2.1"
+  }
+}
