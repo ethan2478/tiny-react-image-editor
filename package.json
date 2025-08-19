@@ -8,6 +8,14 @@
   "files": [
     "lib/**"
   ],
+  "exports": {
+    ".": {
+      "import": "./lib/index.es.js",
+      "require": "./lib/index.cjs.js",
+      "types": "./lib/types/exports.d.ts"
+    },
+    "./style.css": "./lib/style.css"
+  },
   "scripts": {
     "start": "vite",
     "dev": "tsc --watch",
