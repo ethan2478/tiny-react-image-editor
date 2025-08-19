@@ -94,3 +94,6 @@ interface Lang {
 ## Icons
 
 [Iconfont](https://at.alicdn.com/t/project/572327/6f652e79-fb8b-4164-9fb3-40a705433d93.html?spm=a313x.7781069.1998910419.34)
+
+## TODO
+> 目前只是一个简单的版本，后续陆续迭代

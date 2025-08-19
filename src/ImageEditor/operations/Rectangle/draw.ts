@@ -55,7 +55,7 @@ export default function draw (
   ctx.lineWidth = size
   ctx.strokeStyle = color
 
-  console.log('draw rectangle==>>>', { size, color, x1, y1, x2, y2 })
+  // console.log('draw rectangle==>>>', { size, color, x1, y1, x2, y2 })
 
   ctx.beginPath()
   ctx.moveTo(x1, y1)

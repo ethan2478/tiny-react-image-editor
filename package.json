@@ -4,7 +4,7 @@
   "description": "An image editor tool by react",
   "main": "./lib/index.cjs.js",
   "module": "./lib/index.es.js",
-  "types": "./lib/types/exports.ts",
+  "types": "./lib/types/exports.d.ts",
   "files": [
     "lib/**"
   ],
