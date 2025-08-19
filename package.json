@@ -1,6 +1,6 @@
 {
   "name": "tiny-react-image-editor",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "An image editor tool by react",
   "main": "./lib/index.cjs.js",
   "module": "./lib/index.es.js",
