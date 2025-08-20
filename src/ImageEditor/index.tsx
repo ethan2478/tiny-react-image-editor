@@ -16,11 +16,16 @@ export interface ImageEditorProps {
   url: string
   lang?: Partial<Lang>
   className?: string
+  /** z-index 默认1000 */
+  zIndex?: number
   [key: string]: unknown
 }
 
 const ImageEditorIndex: React.FC<ImageEditorProps> = ({
-  url, lang, className,
+  url,
+  lang,
+  className,
+  zIndex = 1000,
   ...props
 }) => {
   const image = useGetLoadedImage(url)
@@ -96,7 +101,12 @@ const ImageEditorIndex: React.FC<ImageEditorProps> = ({
 
   return (
     <ImageEditorContext.Provider value={{ store, dispatcher }}>
-      <div className={classNames(styles[prefix], className)}>
+      <div
+        className={classNames(styles[prefix], className)}
+        style={{
+          '--tiny-react-image-editor-zIndex': zIndex
+        } as React.CSSProperties}
+      >
         <Background ref={imageElRef} />
         <Canvas ref={canvasContextRef} />
         <Operations />
