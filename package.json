@@ -1,7 +1,7 @@
 {
   "name": "tiny-react-image-editor",
   "version": "0.0.3",
-  "description": "An image editor tool by react",
+  "description": "A lightweight React image editor supporting crop, draw, text, mosaic, shapes, and download.",
   "main": "./lib/index.cjs.js",
   "module": "./lib/index.es.js",
   "types": "./lib/types/exports.d.ts",
@@ -19,7 +19,7 @@
   "scripts": {
     "start": "vite",
     "dev": "tsc --watch",
-    "build": "npm run lint && npm run clean && npm run build:web && npm run build:lib",
+    "build": "npm run lint && npm run clean && npm run build:lib",
     "build:web": "vite build --mode web",
     "build:lib": "vite build --mode lib && tsc --project tsconfig.build.json",
     "lint": "eslint src --ext .js,.ts,.jsx,.tsx --fix",
@@ -32,8 +32,11 @@
   },
   "keywords": [
     "react",
+    "image",
+    "editor",
     "cropper",
-    "react image editor"
+    "react-image-editor",
+    "tiny-react-image-editor"
   ],
   "author": "Ethan",
   "license": "MIT",
