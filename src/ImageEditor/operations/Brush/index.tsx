@@ -43,7 +43,7 @@ export default function Brush (): ReactElement {
 
   const selectBrush = useCallback(() => {
     operationDispatcher.set('Brush')
-    cursorDispatcher.set('default')
+    cursorDispatcher.set('crosshair')
   }, [operationDispatcher, cursorDispatcher])
 
   const deselectBrush = useCallback(() => {
