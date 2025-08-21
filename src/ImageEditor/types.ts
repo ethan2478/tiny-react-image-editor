@@ -1,6 +1,11 @@
 import { MutableRefObject } from 'react'
 
-export type CanvasContextRef = MutableRefObject<CanvasRenderingContext2D | null>
+export type CanvasContexts = {
+  panelCtx: CanvasRenderingContext2D | null;
+  resultCtx: CanvasRenderingContext2D | null;
+}
+
+export type CanvasContextRef = MutableRefObject<CanvasContexts | null>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type EmiterListener = (...args: any) => unknown

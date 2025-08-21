@@ -49,6 +49,7 @@ export default function Rectangle (): ReactElement {
   const [operation, operationDispatcher] = useOperation()
   const [, cursorDispatcher] = useCursor()
   const canvasContextRef = useCanvasContextRef()
+  const canvasPanelCtx = canvasContextRef.current?.panelCtx
   const [size, setSize] = useState(3)
   const [color, setColor] = useState('#ee5126')
   const rectangleRef = useRef<HistoryItemSource<RectangleData, RectangleEditData> | null>(null)
@@ -78,7 +79,7 @@ export default function Rectangle (): ReactElement {
 
   const onDrawSelect = useCallback(
     (action: HistoryItemSource<unknown, unknown>, e: MouseEvent) => {
-      if (action.name !== 'Rectangle' || !canvasContextRef.current) {
+      if (action.name !== 'Rectangle' || !canvasPanelCtx) {
         return
       }
 
@@ -89,56 +90,56 @@ export default function Rectangle (): ReactElement {
 
       let type = RectangleEditType.Move
       if (
-        isHitCircle(canvasContextRef.current.canvas, e, {
+        isHitCircle(canvasPanelCtx.canvas, e, {
           x: (x1 + x2) / 2,
           y: y1
         })
       ) {
         type = RectangleEditType.ResizeTop
       } else if (
-        isHitCircle(canvasContextRef.current.canvas, e, {
+        isHitCircle(canvasPanelCtx.canvas, e, {
           x: x2,
           y: y1
         })
       ) {
         type = RectangleEditType.ResizeRightTop
       } else if (
-        isHitCircle(canvasContextRef.current.canvas, e, {
+        isHitCircle(canvasPanelCtx.canvas, e, {
           x: x2,
           y: (y1 + y2) / 2
         })
       ) {
         type = RectangleEditType.ResizeRight
       } else if (
-        isHitCircle(canvasContextRef.current.canvas, e, {
+        isHitCircle(canvasPanelCtx.canvas, e, {
           x: x2,
           y: y2
         })
       ) {
         type = RectangleEditType.ResizeRightBottom
       } else if (
-        isHitCircle(canvasContextRef.current.canvas, e, {
+        isHitCircle(canvasPanelCtx.canvas, e, {
           x: (x1 + x2) / 2,
           y: y2
         })
       ) {
         type = RectangleEditType.ResizeBottom
       } else if (
-        isHitCircle(canvasContextRef.current.canvas, e, {
+        isHitCircle(canvasPanelCtx.canvas, e, {
           x: x1,
           y: y2
         })
       ) {
         type = RectangleEditType.ResizeLeftBottom
       } else if (
-        isHitCircle(canvasContextRef.current.canvas, e, {
+        isHitCircle(canvasPanelCtx.canvas, e, {
           x: x1,
           y: (y1 + y2) / 2
         })
       ) {
         type = RectangleEditType.ResizeLeft
       } else if (
-        isHitCircle(canvasContextRef.current.canvas, e, {
+        isHitCircle(canvasPanelCtx.canvas, e, {
           x: x1,
           y: y1
         })
@@ -160,16 +161,16 @@ export default function Rectangle (): ReactElement {
 
       historyDispatcher.select(action)
     },
-    [canvasContextRef, selectRectangle, historyDispatcher]
+    [canvasPanelCtx, selectRectangle, historyDispatcher]
   )
 
   const onMousedown = useCallback(
     (e: MouseEvent) => {
-      if (!checked || !canvasContextRef.current || rectangleRef.current) {
+      if (!checked || !canvasPanelCtx || rectangleRef.current) {
         return
       }
 
-      const { left, top } = canvasContextRef.current.canvas.getBoundingClientRect()
+      const { left, top } = canvasPanelCtx.canvas.getBoundingClientRect()
       const x = e.clientX - left
       const y = e.clientY - top
 
@@ -189,12 +190,12 @@ export default function Rectangle (): ReactElement {
         isHit
       }
     },
-    [checked, size, color, canvasContextRef]
+    [checked, size, color, canvasPanelCtx]
   )
 
   const onMousemove = useCallback(
     (e: MouseEvent) => {
-      if (!checked || !canvasContextRef.current) {
+      if (!checked || !canvasPanelCtx) {
         return
       }
 
@@ -208,7 +209,7 @@ export default function Rectangle (): ReactElement {
           historyDispatcher.set(history)
         }
       } else if (rectangleRef.current) {
-        const { left, top } = canvasContextRef.current.canvas.getBoundingClientRect()
+        const { left, top } = canvasPanelCtx.canvas.getBoundingClientRect()
         const rectangleData = rectangleRef.current.data
         rectangleData.x2 = e.clientX - left
         rectangleData.y2 = e.clientY - top
@@ -220,7 +221,7 @@ export default function Rectangle (): ReactElement {
         }
       }
     },
-    [checked, canvasContextRef, history, historyDispatcher]
+    [checked, canvasPanelCtx, history, historyDispatcher]
   )
 
   const onMouseup = useCallback(() => {

@@ -116,6 +116,7 @@ export default function Text (): ReactElement {
   const [operation, operationDispatcher] = useOperation()
   const [, cursorDispatcher] = useCursor()
   const canvasContextRef = useCanvasContextRef()
+  const canvasPanelCtx = canvasContextRef.current?.panelCtx
   const [size, setSize] = useState(3)
   const [color, setColor] = useState('#ee5126')
   const textRef = useRef<HistoryItemSource<TextData, TextEditData> | null>(
@@ -210,13 +211,13 @@ export default function Text (): ReactElement {
 
   const onMousedown = useCallback(
     (e: MouseEvent) => {
-      if (!checked || !canvasContextRef.current || textRef.current || !bounds) {
+      if (!checked || !canvasPanelCtx || textRef.current || !bounds) {
         return
       }
       const { left, top } =
-        canvasContextRef.current.canvas.getBoundingClientRect()
+        canvasPanelCtx.canvas.getBoundingClientRect()
       const fontFamily = window.getComputedStyle(
-        canvasContextRef.current.canvas
+        canvasPanelCtx.canvas
       ).fontFamily
       const x = e.clientX - left
       const y = e.clientY - top
@@ -244,7 +245,7 @@ export default function Text (): ReactElement {
         maxHeight: bounds.height - y
       })
     },
-    [checked, size, color, bounds, canvasContextRef]
+    [checked, size, color, bounds, canvasPanelCtx]
   )
 
   const onMousemove = useCallback(

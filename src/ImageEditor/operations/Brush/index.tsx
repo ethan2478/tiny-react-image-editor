@@ -32,6 +32,7 @@ export default function Brush (): ReactElement {
   const [, cursorDispatcher] = useCursor()
   const [operation, operationDispatcher] = useOperation()
   const canvasContextRef = useCanvasContextRef()
+  const canvasPanelCtx = canvasContextRef.current?.panelCtx
   const [history, historyDispatcher] = useHistory()
   const [size, setSize] = useState(3)
   const [color, setColor] = useState('#ee5126')
@@ -86,11 +87,11 @@ export default function Brush (): ReactElement {
 
   const onMousedown = useCallback(
     (e: MouseEvent): void => {
-      if (!checked || brushRef.current || !canvasContextRef.current) {
+      if (!checked || brushRef.current || !canvasPanelCtx) {
         return
       }
 
-      const { left, top } = canvasContextRef.current.canvas.getBoundingClientRect()
+      const { left, top } = canvasPanelCtx.canvas.getBoundingClientRect()
 
       brushRef.current = {
         name: 'Brush',
@@ -110,12 +111,12 @@ export default function Brush (): ReactElement {
         isHit
       }
     },
-    [checked, canvasContextRef, size, color]
+    [checked, canvasPanelCtx, size, color]
   )
 
   const onMousemove = useCallback(
     (e: MouseEvent): void => {
-      if (!checked || !canvasContextRef.current) {
+      if (!checked || !canvasPanelCtx) {
         return
       }
 
@@ -129,7 +130,7 @@ export default function Brush (): ReactElement {
           historyDispatcher.set(history)
         }
       } else if (brushRef.current) {
-        const { left, top } = canvasContextRef.current.canvas.getBoundingClientRect()
+        const { left, top } = canvasPanelCtx.canvas.getBoundingClientRect()
 
         brushRef.current.data.points.push({
           x: e.clientX - left,
@@ -143,7 +144,7 @@ export default function Brush (): ReactElement {
         }
       }
     },
-    [checked, history, canvasContextRef, historyDispatcher]
+    [checked, history, canvasPanelCtx, historyDispatcher]
   )
 
   const onMouseup = useCallback((): void => {

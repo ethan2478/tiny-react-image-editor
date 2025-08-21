@@ -49,6 +49,7 @@ export default function Ellipse (): ReactElement {
   const [operation, operationDispatcher] = useOperation()
   const [, cursorDispatcher] = useCursor()
   const canvasContextRef = useCanvasContextRef()
+  const canvasPanelCtx = canvasContextRef.current?.panelCtx
   const [size, setSize] = useState(3)
   const [color, setColor] = useState('#ee5126')
   const ellipseRef = useRef<HistoryItemSource<EllipseData, EllipseEditData> | null>(null)
@@ -77,7 +78,7 @@ export default function Ellipse (): ReactElement {
 
   const onDrawSelect = useCallback(
     (action: HistoryItemSource<unknown, unknown>, e: MouseEvent) => {
-      if (action.name !== 'Ellipse' || !canvasContextRef.current) {
+      if (action.name !== 'Ellipse' || !canvasPanelCtx) {
         return
       }
 
@@ -89,56 +90,56 @@ export default function Ellipse (): ReactElement {
 
       let type = EllipseEditType.Move
       if (
-        isHitCircle(canvasContextRef.current.canvas, e, {
+        isHitCircle(canvasPanelCtx.canvas, e, {
           x: (x1 + x2) / 2,
           y: y1
         })
       ) {
         type = EllipseEditType.ResizeTop
       } else if (
-        isHitCircle(canvasContextRef.current.canvas, e, {
+        isHitCircle(canvasPanelCtx.canvas, e, {
           x: x2,
           y: y1
         })
       ) {
         type = EllipseEditType.ResizeRightTop
       } else if (
-        isHitCircle(canvasContextRef.current.canvas, e, {
+        isHitCircle(canvasPanelCtx.canvas, e, {
           x: x2,
           y: (y1 + y2) / 2
         })
       ) {
         type = EllipseEditType.ResizeRight
       } else if (
-        isHitCircle(canvasContextRef.current.canvas, e, {
+        isHitCircle(canvasPanelCtx.canvas, e, {
           x: x2,
           y: y2
         })
       ) {
         type = EllipseEditType.ResizeRightBottom
       } else if (
-        isHitCircle(canvasContextRef.current.canvas, e, {
+        isHitCircle(canvasPanelCtx.canvas, e, {
           x: (x1 + x2) / 2,
           y: y2
         })
       ) {
         type = EllipseEditType.ResizeBottom
       } else if (
-        isHitCircle(canvasContextRef.current.canvas, e, {
+        isHitCircle(canvasPanelCtx.canvas, e, {
           x: x1,
           y: y2
         })
       ) {
         type = EllipseEditType.ResizeLeftBottom
       } else if (
-        isHitCircle(canvasContextRef.current.canvas, e, {
+        isHitCircle(canvasPanelCtx.canvas, e, {
           x: x1,
           y: (y1 + y2) / 2
         })
       ) {
         type = EllipseEditType.ResizeLeft
       } else if (
-        isHitCircle(canvasContextRef.current.canvas, e, {
+        isHitCircle(canvasPanelCtx.canvas, e, {
           x: x1,
           y: y1
         })
@@ -160,16 +161,16 @@ export default function Ellipse (): ReactElement {
 
       historyDispatcher.select(action)
     },
-    [canvasContextRef, selectEllipse, historyDispatcher]
+    [canvasPanelCtx, selectEllipse, historyDispatcher]
   )
 
   const onMousedown = useCallback(
     (e: MouseEvent) => {
-      if (!checked || !canvasContextRef.current || ellipseRef.current) {
+      if (!checked || !canvasPanelCtx || ellipseRef.current) {
         return
       }
 
-      const { left, top } = canvasContextRef.current.canvas.getBoundingClientRect()
+      const { left, top } = canvasPanelCtx.canvas.getBoundingClientRect()
       const x = e.clientX - left
       const y = e.clientY - top
       ellipseRef.current = {
@@ -188,12 +189,12 @@ export default function Ellipse (): ReactElement {
         isHit
       }
     },
-    [checked, size, color, canvasContextRef]
+    [checked, size, color, canvasPanelCtx]
   )
 
   const onMousemove = useCallback(
     (e: MouseEvent) => {
-      if (!checked || !canvasContextRef.current) {
+      if (!checked || !canvasPanelCtx) {
         return
       }
 
@@ -207,7 +208,7 @@ export default function Ellipse (): ReactElement {
           historyDispatcher.set(history)
         }
       } else if (ellipseRef.current) {
-        const { left, top } = canvasContextRef.current.canvas.getBoundingClientRect()
+        const { left, top } = canvasPanelCtx.canvas.getBoundingClientRect()
         ellipseRef.current.data.x2 = e.clientX - left
         ellipseRef.current.data.y2 = e.clientY - top
 
@@ -218,7 +219,7 @@ export default function Ellipse (): ReactElement {
         }
       }
     },
-    [checked, canvasContextRef, history, historyDispatcher]
+    [checked, canvasPanelCtx, history, historyDispatcher]
   )
 
   const onMouseup = useCallback(() => {

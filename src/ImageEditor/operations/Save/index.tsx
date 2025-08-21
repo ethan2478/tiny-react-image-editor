@@ -8,8 +8,9 @@ import useReset from '../../hooks/useReset'
 import OperationButton from '../../components/OperationButton'
 
 export default function Save (): ReactElement {
-  const { image, width, height, history, bounds, lang } = useStore()
+  const { image, bounds, lang } = useStore()
   const canvasContextRef = useCanvasContextRef()
+  const canvasResultCtx = canvasContextRef.current?.resultCtx
   const [, historyDispatcher] = useHistory()
   const call = useCall()
   const reset = useReset()
@@ -17,21 +18,15 @@ export default function Save (): ReactElement {
   const onClick = useCallback(() => {
     historyDispatcher.clearSelect()
     setTimeout(() => {
-      if (!canvasContextRef.current || !image || !bounds) {
+      if (!canvasResultCtx || !image || !bounds) {
         return
       }
-      composeImage({
-        image,
-        width,
-        height,
-        history,
-        bounds
-      }).then(blob => {
+      composeImage(canvasResultCtx).then(blob => {
         call('onSave', blob, bounds)
         reset()
       })
     })
-  }, [canvasContextRef, historyDispatcher, image, width, height, history, bounds, call, reset])
+  }, [historyDispatcher, canvasResultCtx, image, bounds, call, reset])
 
   return <OperationButton title={lang.operation_save_title} icon='icon-save' onClick={onClick} />
 }

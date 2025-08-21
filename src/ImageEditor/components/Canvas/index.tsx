@@ -14,7 +14,7 @@ import useEmiter from '../../hooks/useEmiter'
 import useHistory from '../../hooks/useHistory'
 import useOperation from '../../hooks/useOperation'
 import useStore from '../../hooks/useStore'
-import { Bounds, HistoryItemType, Point } from '../../types'
+import { Bounds, CanvasContexts, HistoryItemType, Point } from '../../types'
 import getBoundsByPoints from './getBoundsByPoints'
 import getPoints from './getPoints'
 import isPointInDraw from './isPointInDraw'
@@ -46,7 +46,7 @@ const resizePoints = [
   ResizePoints.ResizeLeftTop
 ]
 
-const Canvas = forwardRef<CanvasRenderingContext2D>(function ScreenshotsCanvas (
+const Canvas = forwardRef<CanvasContexts>(function ScreenshotsCanvas (
   props,
   ref
 ): ReactElement | null {
@@ -62,7 +62,7 @@ const Canvas = forwardRef<CanvasRenderingContext2D>(function ScreenshotsCanvas (
   const pointRef = useRef<Point | null>(null)
   const boundsRef = useRef<Bounds | null>(null)
 
-  const canvasPanelRef = useRef<HTMLCanvasElement>(null)
+  const canvasPanelRef = useRef<HTMLCanvasElement | null>(null)
   const panelCtxRef = useRef<CanvasRenderingContext2D | null>(null)
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -250,9 +250,12 @@ const Canvas = forwardRef<CanvasRenderingContext2D>(function ScreenshotsCanvas (
 
   // 放到最后，保证panelCtxRef.current存在
   useImperativeHandle<
-    CanvasRenderingContext2D | null,
-    CanvasRenderingContext2D | null
-  >(ref, () => panelCtxRef.current)
+    CanvasContexts,
+    CanvasContexts
+  >(ref, () => ({
+    panelCtx: panelCtxRef.current,
+    resultCtx: ctxRef.current
+  }))
 
   return (
     <div className={styles.canvasWrapper}>

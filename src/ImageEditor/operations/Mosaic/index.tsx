@@ -54,6 +54,7 @@ export default function Mosaic (): ReactElement {
   const { image, width, height } = useStore()
   const [operation, operationDispatcher] = useOperation()
   const canvasContextRef = useCanvasContextRef()
+  const canvasPanelCtx = canvasContextRef.current?.panelCtx
   const [history, historyDispatcher] = useHistory()
   const [bounds] = useBounds()
   const [, cursorDispatcher] = useCursor()
@@ -84,11 +85,11 @@ export default function Mosaic (): ReactElement {
 
   const onMousedown = useCallback(
     (e: MouseEvent): void => {
-      if (!checked || mosaicRef.current || !imageDataRef.current || !canvasContextRef.current) {
+      if (!checked || mosaicRef.current || !imageDataRef.current || !canvasPanelCtx) {
         return
       }
 
-      const rect = canvasContextRef.current.canvas.getBoundingClientRect()
+      const rect = canvasPanelCtx.canvas.getBoundingClientRect()
       const x = e.clientX - rect.x
       const y = e.clientY - rect.y
       const mosaicSize = size * 2
@@ -109,16 +110,16 @@ export default function Mosaic (): ReactElement {
         draw
       }
     },
-    [checked, size, canvasContextRef]
+    [checked, size, canvasPanelCtx]
   )
 
   const onMousemove = useCallback(
     (e: MouseEvent): void => {
-      if (!checked || !mosaicRef.current || !canvasContextRef.current || !imageDataRef.current) {
+      if (!checked || !mosaicRef.current || !canvasPanelCtx || !imageDataRef.current) {
         return
       }
 
-      const rect = canvasContextRef.current.canvas.getBoundingClientRect()
+      const rect = canvasPanelCtx.canvas.getBoundingClientRect()
       const x = e.clientX - rect.x
       const y = e.clientY - rect.y
 
@@ -169,7 +170,7 @@ export default function Mosaic (): ReactElement {
         historyDispatcher.set(history)
       }
     },
-    [checked, canvasContextRef, history, historyDispatcher]
+    [checked, canvasPanelCtx, history, historyDispatcher]
   )
 
   const onMouseup = useCallback(() => {

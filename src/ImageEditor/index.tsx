@@ -3,7 +3,7 @@ import Background from './components/Background'
 import Canvas from './components/Canvas'
 import ImageEditorContext from './context'
 import Operations from './components/Operations'
-import { Bounds, Emiter, History } from './types'
+import { Bounds, Emiter, History, CanvasContexts } from './types'
 import useGetLoadedImage from './hooks/useGetLoadedImage'
 import zhCN, { Lang } from './zh_CN'
 import classNames from './utils/classNames'
@@ -42,7 +42,7 @@ const ImageEditorIndex: React.FC<ImageEditorProps> = ({
   const [width, setWidth] = useState(0)
   const [height, setHeight] = useState(0)
 
-  const canvasContextRef = useRef<CanvasRenderingContext2D>(null)
+  const canvasContextRef = useRef<CanvasContexts>(null)
   const emiterRef = useRef<Emiter>({})
   const imageElRef = useRef<HTMLImageElement>(null)
 

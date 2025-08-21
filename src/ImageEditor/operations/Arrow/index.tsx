@@ -43,6 +43,7 @@ export default function Arrow (): ReactElement {
   const [operation, operationDispatcher] = useOperation()
   const [history, historyDispatcher] = useHistory()
   const canvasContextRef = useCanvasContextRef()
+  const canvasPanelCtx = canvasContextRef.current?.panelCtx
   const [size, setSize] = useState(3)
   const [color, setColor] = useState('#ee5126')
   const arrowRef = useRef<HistoryItemSource<ArrowData, ArrowEditData> | null>(null)
@@ -72,7 +73,7 @@ export default function Arrow (): ReactElement {
 
   const onDrawSelect = useCallback(
     (action: HistoryItemSource<unknown, unknown>, e: MouseEvent) => {
-      if (action.name !== 'Arrow' || !canvasContextRef.current) {
+      if (action.name !== 'Arrow' || !canvasPanelCtx) {
         return
       }
 
@@ -82,14 +83,14 @@ export default function Arrow (): ReactElement {
       const { x1, y1, x2, y2 } = getEditedArrowData(source)
       let type = ArrowEditType.Move
       if (
-        isHitCircle(canvasContextRef.current.canvas, e, {
+        isHitCircle(canvasPanelCtx.canvas, e, {
           x: x1,
           y: y1
         })
       ) {
         type = ArrowEditType.MoveStart
       } else if (
-        isHitCircle(canvasContextRef.current.canvas, e, {
+        isHitCircle(canvasPanelCtx.canvas, e, {
           x: x2,
           y: y2
         })
@@ -111,16 +112,16 @@ export default function Arrow (): ReactElement {
 
       historyDispatcher.select(action)
     },
-    [canvasContextRef, selectArrow, historyDispatcher]
+    [canvasPanelCtx, selectArrow, historyDispatcher]
   )
 
   const onMousedown = useCallback(
     (e: MouseEvent) => {
-      if (!checked || arrowRef.current || !canvasContextRef.current) {
+      if (!checked || arrowRef.current || !canvasPanelCtx) {
         return
       }
 
-      const { left, top } = canvasContextRef.current.canvas.getBoundingClientRect()
+      const { left, top } = canvasPanelCtx.canvas.getBoundingClientRect()
       arrowRef.current = {
         name: 'Arrow',
         type: HistoryItemType.Source,
@@ -137,12 +138,12 @@ export default function Arrow (): ReactElement {
         isHit
       }
     },
-    [checked, color, size, canvasContextRef]
+    [checked, color, size, canvasPanelCtx]
   )
 
   const onMousemove = useCallback(
     (e: MouseEvent) => {
-      if (!checked || !canvasContextRef.current) {
+      if (!checked || !canvasPanelCtx) {
         return
       }
       if (arrowEditRef.current) {
@@ -155,7 +156,7 @@ export default function Arrow (): ReactElement {
           historyDispatcher.set(history)
         }
       } else if (arrowRef.current) {
-        const { left, top } = canvasContextRef.current.canvas.getBoundingClientRect()
+        const { left, top } = canvasPanelCtx.canvas.getBoundingClientRect()
 
         arrowRef.current.data.x2 = e.clientX - left
         arrowRef.current.data.y2 = e.clientY - top
@@ -167,7 +168,7 @@ export default function Arrow (): ReactElement {
         }
       }
     },
-    [checked, history, canvasContextRef, historyDispatcher]
+    [checked, history, canvasPanelCtx, historyDispatcher]
   )
 
   const onMouseup = useCallback(() => {

@@ -10,6 +10,7 @@ import composeImage from '../../utils/composeImage'
 export default function Ok (): ReactElement {
   const { image, width, height, history, bounds, lang } = useStore()
   const canvasContextRef = useCanvasContextRef()
+  const canvasResultCtx = canvasContextRef.current?.resultCtx
   const [, historyDispatcher] = useHistory()
   const call = useCall()
   const reset = useReset()
@@ -17,21 +18,15 @@ export default function Ok (): ReactElement {
   const onClick = useCallback(() => {
     historyDispatcher.clearSelect()
     setTimeout(() => {
-      if (!canvasContextRef.current || !image || !bounds) {
+      if (!canvasResultCtx || !image || !bounds) {
         return
       }
-      composeImage({
-        image,
-        width,
-        height,
-        history,
-        bounds
-      }).then(blob => {
+      composeImage(canvasResultCtx).then(blob => {
         call('onOk', blob, bounds)
         reset()
       })
     })
-  }, [canvasContextRef, historyDispatcher, image, width, height, history, bounds, call, reset])
+  }, [canvasResultCtx, historyDispatcher, image, bounds, call, reset])
 
   return <OperationButton title={lang.operation_ok_title} icon='icon-ok' onClick={onClick} />
 }
