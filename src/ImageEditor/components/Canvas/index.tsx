@@ -18,6 +18,7 @@ import { Bounds, HistoryItemType, Point } from '../../types'
 import getBoundsByPoints from './getBoundsByPoints'
 import getPoints from './getPoints'
 import isPointInDraw from './isPointInDraw'
+import { drawCrispImage, copyCanvasRegion } from '../../utils/canvas'
 import styles from './index.module.less'
 
 const borders = ['top', 'right', 'bottom', 'left']
@@ -140,18 +141,29 @@ const Canvas = forwardRef<CanvasRenderingContext2D>(function ScreenshotsCanvas (
     [width, height, bounds, boundsDispatcher]
   )
 
+  // 初始化canvas画板，后续所有的操作都是在这个画板上进行
+  const initCanvasPanel = useCallback(() => {
+    if (!bounds || !panelCtxRef.current || !imageElRef.current || !canvasPanelRef.current) {
+      return
+    }
+
+    drawCrispImage({
+      sourceImg: imageElRef.current,
+      canvas: canvasPanelRef.current,
+      ctx: panelCtxRef.current,
+      width,
+      height
+    })
+  }, [bounds, height, imageElRef, width])
+
   const draw = useCallback(() => {
-    if (!bounds || !ctxRef.current || !canvasPanelRef.current) {
+    if (!bounds || !ctxRef.current || !canvasPanelRef.current || !canvasRef.current) {
       return
     }
 
     // 每次绘制前先重置画板
     if (panelCtxRef.current && imageElRef.current) {
-      const panelCtx = panelCtxRef.current
-      panelCtx.imageSmoothingEnabled = true
-      panelCtx.imageSmoothingQuality = 'low'
-      panelCtx.clearRect(0, 0, width, height)
-      panelCtx.drawImage(imageElRef.current, 0, 0, width, height)
+      initCanvasPanel()
     }
 
     history.stack.slice(0, history.index + 1).forEach((item) => {
@@ -160,33 +172,13 @@ const Canvas = forwardRef<CanvasRenderingContext2D>(function ScreenshotsCanvas (
       }
     })
 
-    const ctx = ctxRef.current
-    ctx.imageSmoothingEnabled = true
-    // 设置太高，图片会模糊
-    ctx.imageSmoothingQuality = 'low'
-    ctx.clearRect(0, 0, bounds.width, bounds.height)
-    ctx.drawImage(
-      canvasPanelRef.current,
-      bounds.x, bounds.y,
-      bounds.width, bounds.height,
-      0, 0,
-      bounds.width, bounds.height
-    )
-  }, [bounds, ctxRef, history, width, height, imageElRef])
-
-  // 初始化canvas画板，后续所有的操作都是在这个画板上进行
-  const initCanvasPanel = useCallback(() => {
-    if (!bounds || !panelCtxRef.current || !imageElRef.current) {
-      return
-    }
-
-    const ctx = panelCtxRef.current
-    ctx.imageSmoothingEnabled = true
-    // 设置太高，图片会模糊
-    ctx.imageSmoothingQuality = 'low'
-    ctx.clearRect(0, 0, width, height)
-    ctx.drawImage(imageElRef.current, 0, 0, width, height)
-  }, [bounds, height, imageElRef, width])
+    copyCanvasRegion({
+      sourceCanvas: canvasPanelRef.current,
+      resultCanvas: canvasRef.current,
+      resultCtx: ctxRef.current,
+      bounds
+    })
+  }, [bounds, ctxRef, history, imageElRef, initCanvasPanel])
 
   useLayoutEffect(() => {
     if (!image || !bounds || !canvasPanelRef.current || !imageElRef.current) {
