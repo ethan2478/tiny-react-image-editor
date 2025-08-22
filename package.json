@@ -1,6 +1,6 @@
 {
   "name": "tiny-react-image-editor",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A lightweight React image editor supporting crop, draw, text, mosaic, shapes, and download.",
   "main": "./lib/index.cjs.js",
   "module": "./lib/index.es.js",
