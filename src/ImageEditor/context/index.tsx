@@ -4,6 +4,7 @@ import zhCN, { Lang } from '../zh_CN'
 
 export interface ImageEditorContextStore {
   url?: string
+  isLoading: boolean
   image: HTMLImageElement | null
   width: number
   height: number
@@ -35,6 +36,7 @@ export interface ImageEditorContextValue {
 export default React.createContext<ImageEditorContextValue>({
   store: {
     url: undefined,
+    isLoading: false,
     image: null,
     width: 0,
     height: 0,

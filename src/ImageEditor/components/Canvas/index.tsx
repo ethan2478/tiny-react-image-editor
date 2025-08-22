@@ -50,7 +50,7 @@ const Canvas = forwardRef<CanvasContexts>(function ScreenshotsCanvas (
   props,
   ref
 ): ReactElement | null {
-  const { image, width, height, imageElRef } = useStore()
+  const { image, url, width, height, imageElRef } = useStore()
 
   const emiter = useEmiter()
   const [history] = useHistory()
@@ -256,6 +256,10 @@ const Canvas = forwardRef<CanvasContexts>(function ScreenshotsCanvas (
     panelCtx: panelCtxRef.current,
     resultCtx: ctxRef.current
   }))
+
+  if (!url || !image) {
+    return null
+  }
 
   return (
     <div className={styles.canvasWrapper}>

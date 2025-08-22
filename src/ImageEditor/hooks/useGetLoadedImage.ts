@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react'
 
-export default function useGetLoadedImage (url?: string): HTMLImageElement | null {
+interface GetLoadedImageRet {
+  isLoading: boolean;
+  image: HTMLImageElement | null;
+}
+
+export default function useGetLoadedImage (url?: string): GetLoadedImageRet {
   const [image, setImage] = useState<HTMLImageElement | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     // 先置空图片
@@ -10,20 +16,29 @@ export default function useGetLoadedImage (url?: string): HTMLImageElement | nul
       return
     }
 
+    setIsLoading(true)
     const $image = document.createElement('img')
 
-    const onLoad = () => setImage($image)
-    const onError = () => setImage(null)
-
-    $image.addEventListener('load', onLoad)
-    $image.addEventListener('error', onError)
+    $image.onload = function () {
+      console.log('IMAGE_EDITOR:: image loaded success', url)
+      setImage($image)
+      setIsLoading(false)
+    }
+    $image.onerror = function () {
+      console.log('IMAGE_EDITOR:: image loaded error', url)
+      setImage(null)
+      setIsLoading(false)
+    }
     $image.src = url
 
     return () => {
-      $image.removeEventListener('load', onLoad)
-      $image.removeEventListener('error', onError)
+      $image.onload = null
+      $image.onerror = null
     }
   }, [url])
 
-  return image
+  return {
+    isLoading,
+    image
+  }
 }

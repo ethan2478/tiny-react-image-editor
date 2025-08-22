@@ -3,7 +3,7 @@ import Background from './components/Background'
 import Canvas from './components/Canvas'
 import ImageEditorContext from './context'
 import Operations from './components/Operations'
-import { Bounds, Emiter, History, CanvasContexts } from './types'
+import type { Bounds, Emiter, History, CanvasContexts } from './types'
 import useGetLoadedImage from './hooks/useGetLoadedImage'
 import zhCN, { Lang } from './zh_CN'
 import classNames from './utils/classNames'
@@ -18,6 +18,13 @@ export interface ImageEditorProps {
   className?: string
   /** z-index 默认1000 */
   zIndex?: number
+  onCancel?: () => void
+  onOk?: (blob: Blob | null, bounds: Bounds) => void
+  onSave?: (blob: Blob | null, bounds: Bounds) => void
+  /** 渲染图片时限制的最大高度，默认70vh */
+  maxHeight?: string
+  /** 渲染图片时限制的最大宽度，默认90vw */
+  maxWidth?: string
   [key: string]: unknown
 }
 
@@ -26,9 +33,11 @@ const ImageEditorIndex: React.FC<ImageEditorProps> = ({
   lang,
   className,
   zIndex = 1000,
+  maxHeight = '70vh',
+  maxWidth = '90vw',
   ...props
 }) => {
-  const image = useGetLoadedImage(url)
+  const { image, isLoading } = useGetLoadedImage(url)
 
   const [history, setHistory] = useState<History>({
     index: -1,
@@ -50,6 +59,7 @@ const ImageEditorIndex: React.FC<ImageEditorProps> = ({
     url,
     width,
     height,
+    isLoading,
     image,
     lang: {
       ...zhCN,
@@ -104,7 +114,9 @@ const ImageEditorIndex: React.FC<ImageEditorProps> = ({
       <div
         className={classNames(styles[prefix], className)}
         style={{
-          '--tiny-react-image-editor-zIndex': zIndex
+          '--tiny-react-image-editor-zIndex': zIndex,
+          '--tiny-react-image-editor-maxWidth': maxWidth,
+          '--tiny-react-image-editor-maxHeight': maxHeight
         } as React.CSSProperties}
       >
         <Background ref={imageElRef} />

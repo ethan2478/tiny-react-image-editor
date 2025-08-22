@@ -2,10 +2,12 @@ import React, { memo, useCallback, useLayoutEffect, useState } from 'react'
 import useBounds from '../../hooks/useBounds'
 import useStore from '../../hooks/useStore'
 import useDispatcher from '../../hooks/useDispatcher'
+import Loading from './Loading'
+import ImageLoadError from './Error'
 import styles from './index.module.less'
 
 const ImageEditorBackground = React.forwardRef<HTMLImageElement>((props, ref) => {
-  const { url, image } = useStore()
+  const { url, image, isLoading } = useStore()
   const { setWidth, setHeight } = useDispatcher()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [bounds, boundsDispatcher] = useBounds()
@@ -36,10 +38,14 @@ const ImageEditorBackground = React.forwardRef<HTMLImageElement>((props, ref) =>
     setImgStyle({})
   }, [url, image])
 
-  // TODO: 加载失败时展示的展位图
-  // 没有加载完不显示图片
-  if (!url || !image) {
-    return null
+  if (!url || (!isLoading && !image)) {
+    // 加载失败
+    return <ImageLoadError />
+  }
+
+  if (isLoading) {
+    // 加载中
+    return <Loading />
   }
 
   return (
@@ -51,7 +57,6 @@ const ImageEditorBackground = React.forwardRef<HTMLImageElement>((props, ref) =>
         onLoad={onLoad}
         style={imgStyle}
       />
-      <div className={styles.backgroundImageMask} />
     </div>
   )
 })
