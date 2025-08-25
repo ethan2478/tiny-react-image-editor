@@ -1,6 +1,6 @@
 # react-image-editor
 
-> 一款开源的react图片编辑组件
+> 一款开源的react图片编辑组件，目前基于[开源代码](https://github.com/nashaofu/screenshots)进行二次开发（后续考虑重构）
 
 ## 安装依赖
 
@@ -97,3 +97,8 @@ interface Lang {
 
 ## TODO
 > 目前只是一个简单的版本，后续陆续迭代
+
+- 编辑组件定位问题
+- 窗口缩放时编辑组件定位未改变的问题
+- eslint stylelint prettier husky commitlint等接入
+- 代码逻辑不清晰，维护成本高，后续考虑重构

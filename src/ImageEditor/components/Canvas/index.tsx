@@ -90,6 +90,26 @@ const Canvas = forwardRef<CanvasContexts>(function ScreenshotsCanvas (
     }
   }, [emiter, height, history, operation, width])
 
+  const onCanvasPanelDoubleClick = useCallback((e: React.MouseEvent) => {
+    if (e.button !== 0 || !operation) {
+      return
+    }
+
+    const draw = isPointInDraw(
+      width,
+      height,
+      canvasPanelRef.current,
+      history,
+      e.nativeEvent
+    )
+
+    if (draw) {
+      emiter.emit('drawdoubleclick', draw, e.nativeEvent)
+    } else {
+      emiter.emit('doubleclick', e.nativeEvent)
+    }
+  }, [emiter, height, history, operation, width])
+
   const onBoundsMouseDown = useCallback(
     (e: React.MouseEvent, resizeOrMove: string) => {
       if (e.button !== 0 || !bounds) {
@@ -266,7 +286,8 @@ const Canvas = forwardRef<CanvasContexts>(function ScreenshotsCanvas (
       <div
         className={styles.canvasPanelContainer}
         style={{ cursor: cursor === 'move' ? 'default' : cursor }}
-        onMouseDown={(e) => onCanvasPanelMouseDown(e)}
+        onMouseDown={onCanvasPanelMouseDown}
+        onDoubleClick={onCanvasPanelDoubleClick}
       >
         <canvas
           ref={canvasPanelRef}

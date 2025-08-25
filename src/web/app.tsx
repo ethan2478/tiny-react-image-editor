@@ -3,6 +3,9 @@ import ImageEditor from '../ImageEditor'
 import type { Bounds } from '../ImageEditor/types'
 import './app.less'
 import imageUrl from './image.jpg'
+import imageUrl2 from './image2.jpeg'
+import imageUrl3 from './778899.jpeg'
+import GlobalImageEditor from './GlobalImageEditor'
 
 const App = () => {
   const onSave = useCallback((blob: Blob | null, bounds: Bounds) => {
@@ -27,17 +30,10 @@ const App = () => {
     }
   }, [])
 
+  // TODO: 无法编辑的问题
   return (
     <div className='body'>
-      <ImageEditor
-        url={imageUrl}
-        lang={{
-          operation_rectangle_title: 'Rectangle'
-        }}
-        onSave={onSave}
-        onCancel={onCancel}
-        onOk={onOk}
-      />
+      <GlobalImageEditor src={imageUrl3} open />
     </div>
   )
 }

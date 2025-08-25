@@ -18,6 +18,7 @@ import useDrawSelect from '../../hooks/useDrawSelect'
 import useCanvasMousemove from '../../hooks/useCanvasMousemove'
 import useCanvasMouseup from '../../hooks/useCanvasMouseup'
 import useLang from '../../hooks/useLang'
+import useDrawDoubleClick from '../../hooks/useDrawDoubleClick'
 
 export interface TextData {
   size: number;
@@ -35,6 +36,12 @@ export interface TextEditData {
   y2: number;
 }
 
+export interface TextReEditData {
+  size: number;
+  color: string;
+  text: string;
+}
+
 export interface TextareaBounds {
   x: number;
   y: number;
@@ -50,57 +57,82 @@ const sizes: Record<number, number> = {
 
 function draw (
   ctx: CanvasRenderingContext2D,
-  action: HistoryItemSource<TextData, TextEditData>
+  action: HistoryItemSource<TextData, any>
 ) {
   const { size, color, fontFamily, x, y, text } = action.data
-  ctx.fillStyle = color
+
+  const lastEditItem = action.editHistory.findLast(item => !!item.data.size)
+
+  let finalColor = color
+  let finalSize = size
+  let finalText = text
+  if (lastEditItem?.data) {
+    finalColor = lastEditItem.data.color
+    finalSize = lastEditItem.data.size
+    finalText = (lastEditItem.data.text || '')
+  }
+
+  ctx.fillStyle = finalColor
   ctx.textAlign = 'left'
   ctx.textBaseline = 'top'
-  ctx.font = `${size}px ${fontFamily}`
+  ctx.font = `${sizes[finalSize]}px ${fontFamily}`
 
   const distance = action.editHistory.reduce(
     (distance, { data }) => ({
-      x: distance.x + data.x2 - data.x1,
-      y: distance.y + data.y2 - data.y1
+      x: distance.x + (data.x2 || 0) - (data.x1 || 0),
+      y: distance.y + (data.y2 || 0) - (data.y1 || 0)
     }),
     { x: 0, y: 0 }
   )
 
-  text.split('\n').forEach((item, index) => {
+  finalText.split('\n').forEach((item, index) => {
     ctx.fillText(item, x + distance.x, y + distance.y + index * size)
   })
 }
 
 function isHit (
   ctx: CanvasRenderingContext2D,
-  action: HistoryItemSource<TextData, TextEditData>,
+  action: HistoryItemSource<TextData, any>,
   point: Point
 ) {
+  const { size, color, fontFamily, text } = action.data
+
+  const lastEditItem = action.editHistory.findLast(item => !!item.data.size)
+
+  let finalColor = color
+  let finalSize = size
+  let finalText = text
+  if (lastEditItem?.data) {
+    finalColor = lastEditItem.data.color
+    finalSize = lastEditItem.data.size
+    finalText = (lastEditItem.data.text || '')
+  }
+
   ctx.textAlign = 'left'
   ctx.textBaseline = 'top'
-  ctx.font = `${action.data.size}px ${action.data.fontFamily}`
+  ctx.font = `${sizes[finalSize]}px ${fontFamily}`
 
   let width = 0
   let height = 0
 
-  action.data.text.split('\n').forEach((item) => {
+  finalText.split('\n').forEach((item) => {
     const measured = ctx.measureText(item)
     if (width < measured.width) {
       width = measured.width
     }
-    height += action.data.size
+    height += sizes[finalSize]
   })
 
-  const { x, y } = action.editHistory.reduce(
+  const distance = action.editHistory.reduce(
     (distance, { data }) => ({
-      x: distance.x + data.x2 - data.x1,
-      y: distance.y + data.y2 - data.y1
+      x: distance.x + (data.x2 || 0) - (data.x1 || 0),
+      y: distance.y + (data.y2 || 0) - (data.y1 || 0)
     }),
     { x: 0, y: 0 }
   )
 
-  const left = action.data.x + x
-  const top = action.data.y + y
+  const left = action.data.x + distance.x
+  const top = action.data.y + distance.y
   const right = left + width
   const bottom = top + height
 
@@ -117,18 +149,23 @@ export default function Text (): ReactElement {
   const [, cursorDispatcher] = useCursor()
   const canvasContextRef = useCanvasContextRef()
   const canvasPanelCtx = canvasContextRef.current?.panelCtx
+
   const [size, setSize] = useState(3)
   const [color, setColor] = useState('#ee5126')
+  const [text, setText] = useState<string>('')
+
   const textRef = useRef<HistoryItemSource<TextData, TextEditData> | null>(
     null
   )
   const textEditRef = useRef<HistoryItemEdit<TextEditData, TextData> | null>(
     null
   )
+  const textReEditRef = useRef<HistoryItemEdit<TextReEditData, TextData> | null>(
+    null
+  )
   const [textareaBounds, setTextareaBounds] = useState<TextareaBounds | null>(
     null
   )
-  const [text, setText] = useState<string>('')
 
   const checked = operation === 'Text'
 
@@ -154,7 +191,11 @@ export default function Text (): ReactElement {
 
   const onSizeChange = useCallback((size: number) => {
     if (textRef.current) {
-      textRef.current.data.size = sizes[size]
+      textRef.current.data.size = size
+    }
+
+    if (textReEditRef.current) {
+      textReEditRef.current.data.size = size
     }
     setSize(size)
   }, [])
@@ -163,6 +204,11 @@ export default function Text (): ReactElement {
     if (textRef.current) {
       textRef.current.data.color = color
     }
+
+    if (textReEditRef.current) {
+      textReEditRef.current.data.color = color
+    }
+
     setColor(color)
   }, [])
 
@@ -176,14 +222,22 @@ export default function Text (): ReactElement {
     [checked]
   )
 
-  const onTextareaBlur = useCallback(() => {
+  const onTextareaBlur = useCallback((value: string) => {
+    // 首次编辑
     if (textRef.current && textRef.current.data.text) {
       historyDispatcher.push(textRef.current)
     }
+    // 重新编辑
+    if (textReEditRef.current) {
+      textReEditRef.current.data.text = value || ''
+      historyDispatcher.set(history)
+    }
+
     textRef.current = null
+    textReEditRef.current = null
     setText('')
     setTextareaBounds(null)
-  }, [historyDispatcher])
+  }, [historyDispatcher, history])
 
   const onDrawSelect = useCallback(
     (action: HistoryItemSource<unknown, unknown>, e: MouseEvent) => {
@@ -209,16 +263,77 @@ export default function Text (): ReactElement {
     [selectText, historyDispatcher]
   )
 
+  const onDrawDoubleClick = useCallback(
+    (action: HistoryItemSource<unknown, unknown>, e: MouseEvent) => {
+      if (action.name !== 'Text' || !bounds) {
+        return
+      }
+
+      const canvasPanelRect = canvasPanelCtx?.canvas.getBoundingClientRect()
+      if (!canvasPanelRect) return
+
+      selectText()
+
+      // 禁止移动
+      textEditRef.current = null
+
+      const editHistory = action.editHistory as HistoryItemEdit<any, TextData>[]
+      const latest = editHistory.findLast(item => !!item.data.size)
+
+      const sourceData = action.data as TextData
+      const mergeData = {
+        ...(sourceData || {}),
+        color: latest?.data.color || sourceData.color,
+        size: latest?.data.size || sourceData.size,
+        text: latest?.data.text || sourceData.text
+      } as TextData
+
+      textReEditRef.current = {
+        type: HistoryItemType.Edit,
+        data: {
+          color: mergeData.color,
+          size: mergeData.size,
+          text: ''
+        },
+        source: action as HistoryItemSource<TextData, TextReEditData>
+      }
+
+      /************ 重新在文本框中显示文本 ************/
+      const { x: dx, y: dy } = editHistory.reduce(
+        (distance, { data }) => ({
+          x: distance.x + (data.x2 || 0) - (data.x1 || 0),
+          y: distance.y + (data.y2 || 0) - (data.y1 || 0)
+        }),
+        { x: 0, y: 0 }
+      )
+
+      const x = sourceData.x + dx + canvasPanelRect.x
+      const y = sourceData.y + dy + canvasPanelRect.y
+
+      setTextareaBounds({
+        x,
+        y,
+        maxWidth: canvasPanelRect.width - sourceData.x,
+        maxHeight: canvasPanelRect.height - sourceData.y
+      })
+
+      setSize(mergeData.size)
+      setColor(mergeData.color)
+      setText(mergeData.text)
+
+      /************ 触发重新绘图 ************/
+      textReEditRef.current.source.editHistory.push(textReEditRef.current)
+      historyDispatcher.push(textReEditRef.current)
+    }, [bounds, canvasPanelCtx?.canvas, historyDispatcher, selectText])
+
   const onMousedown = useCallback(
     (e: MouseEvent) => {
       if (!checked || !canvasPanelCtx || textRef.current || !bounds) {
         return
       }
-      const { left, top } =
-        canvasPanelCtx.canvas.getBoundingClientRect()
-      const fontFamily = window.getComputedStyle(
-        canvasPanelCtx.canvas
-      ).fontFamily
+
+      const { left, top, width, height } = canvasPanelCtx.canvas.getBoundingClientRect()
+      const fontFamily = window.getComputedStyle(canvasPanelCtx.canvas).fontFamily
       const x = e.clientX - left
       const y = e.clientY - top
 
@@ -226,7 +341,7 @@ export default function Text (): ReactElement {
         name: 'Text',
         type: HistoryItemType.Source,
         data: {
-          size: sizes[size],
+          size,
           color,
           fontFamily,
           x,
@@ -241,8 +356,8 @@ export default function Text (): ReactElement {
       setTextareaBounds({
         x: e.clientX,
         y: e.clientY,
-        maxWidth: bounds.width - x,
-        maxHeight: bounds.height - y
+        maxWidth: width - x,
+        maxHeight: height - y
       })
     },
     [checked, size, color, bounds, canvasPanelCtx]
@@ -277,6 +392,7 @@ export default function Text (): ReactElement {
   }, [checked])
 
   useDrawSelect(onDrawSelect)
+  useDrawDoubleClick(onDrawDoubleClick)
   useCanvasMousedown(onMousedown)
   useCanvasMousemove(onMousemove)
   useCanvasMouseup(onMouseup)

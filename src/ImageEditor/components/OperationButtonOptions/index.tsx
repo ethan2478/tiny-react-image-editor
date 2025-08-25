@@ -116,6 +116,7 @@ const OperationButtonOptions: React.FC<OperationButtonOptionsProps> = ({
         content &&
         createPortal(
           <div
+            id='tinyReactImageEditorOperationButtonOptions'
             ref={contentRef}
             className={styles.operationButtonOptions}
             style={{
