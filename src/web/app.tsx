@@ -30,7 +30,6 @@ const App = () => {
     }
   }, [])
 
-  // TODO: 无法编辑的问题
   return (
     <div className='body'>
       <GlobalImageEditor src={imageUrl3} open />
